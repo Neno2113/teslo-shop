@@ -8,6 +8,11 @@
 # testing
 /coverage
 
+.env
+
+
+/mongo
+
 # next.js
 /.next/
 /out/

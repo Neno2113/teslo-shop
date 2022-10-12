@@ -2,33 +2,41 @@ import NextLink from 'next/link';
 import { Box, Button, CardActionArea, CardMedia, Grid, Link, Typography } from '@mui/material';
 import { initialData } from '../../database/products';
 import { ItemCounter } from '../ui';
+import { useContext } from 'react';
+import { CartContext } from '../../context/cart/cartContext';
+import { ICartProduct } from '../../interfaces';
 
 interface Props {
 
 }
 
-const productsInCard = [
-    initialData.products[0],
-    initialData.products[1],
-    initialData.products[2],
-]
 
 interface Props {
     editable?: boolean;
 }
 
 export const CardList = ({ editable = false }: Props) => {
+
+    const { cart, updateCartQuantity, deleteProductInCart } = useContext(CartContext);
+
+
+    const onNewQuantityCartValue = (product: ICartProduct, newQuantityValue: number ) => {
+        product.quantity = newQuantityValue
+        updateCartQuantity( product );
+    }
+    
+
     return (
         <>
             {
-                productsInCard.map( product => (
-                    <Grid container spacing={2} sx={{ mb: 1 }} key={ product.slug }>
+                cart.map( product => (
+                    <Grid container spacing={2} sx={{ mb: 1 }} key={ product.slug + product.size }>
                         <Grid item xs={3}>
-                            <NextLink href="/product/slug" passHref>
+                            <NextLink href={`/product/${ product.slug }`} passHref>
                                 <Link>
                                     <CardActionArea>
                                         <CardMedia 
-                                            image={ `/products/${ product.images[1] }`}
+                                            image={ `/products/${ product.images }`}
                                             component="img"
                                             sx={{ borderRadius: '5px'}}
                                         />
@@ -43,8 +51,14 @@ export const CardList = ({ editable = false }: Props) => {
 
                                 {
                                     editable
-                                    ? <ItemCounter />
-                                    : <Typography variant='h5'>3 Items</Typography>
+                                    ? (
+                                        <ItemCounter 
+                                            currentValue={ product.quantity } 
+                                            maxValue={ 10 } 
+                                            updateQuantity={ (value) => onNewQuantityCartValue(product, value) }
+                                        />
+                                    )
+                                    : <Typography variant='h5'>{ product.quantity } { product.quantity > 1 ? 'Productos' : 'Producto'}</Typography>
                                 }
                               
 
@@ -55,7 +69,11 @@ export const CardList = ({ editable = false }: Props) => {
                             {
                                 editable &&
                                 (
-                                <Button variant='text' color='secondary'>
+                                <Button 
+                                    variant='text' 
+                                    color='secondary'
+                                    onClick={ () => deleteProductInCart( product ) }    
+                                >
                                     Remover
                                 </Button>
                                 )

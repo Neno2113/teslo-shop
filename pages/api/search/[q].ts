@@ -34,9 +34,9 @@ const searchProduct = async (req: NextApiRequest, res: NextApiResponse ) => {
 
     await db.connect();
     const products = await Product.find({
-        $text: { $search: q }
+        $text: { $search: `${ q }` } 
     })
-    .select('title images price inStock -_id', )
+    .select('title images slug price inStock  -_id', )
     .lean()
 
     await db.disconnect();
